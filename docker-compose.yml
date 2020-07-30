@@ -1,0 +1,35 @@
+version: '2'
+
+services:
+  fastapi:
+    container_name: sams_fastapi
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.7
+    ports:
+      - "80:80"
+    volumes:
+      - ./src/app:/app
+    depends_on:
+      - db
+    entrypoint: [/start-reload.sh]
+    networks:
+      default:
+      internal:
+  db:
+    container_name: sams_mariadb
+    image: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=toor
+      - MYSQL_USER=sams
+      - MYSQL_PASSWORD=sams
+      - MYSQL_DATABASE=sams
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    networks:
+        internal:
+    # This command is required to set important mariadb defaults
+    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci, --wait_timeout=28800, --log-warnings=0]
+
+networks:
+    default:
+    internal:
+        internal: true
